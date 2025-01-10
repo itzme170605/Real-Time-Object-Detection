@@ -102,9 +102,14 @@ train_model(model, train_loader, criterion, optimizer, num_epochs)
 # Evaluate the model
 evaluate_model(model, test_loader)
 
-# Save the quantized model
-torch.save(quantized_model, "quantized_asl_model.pth")
-print("Quantized model saved.") 
+# # Save the quantized model
+# torch.save(quantized_model, "quantized_asl_model.pth")
+# print("Quantized model saved.") 
+# Save the quantized model (full model) 
+
+quantized_model_path = "quantized_asl_model.pth"
+torch.save(quantized_model, quantized_model_path)
+print(f"Quantized model saved to {quantized_model_path}")
 
 # Test Quantized Model
 def test_quantized_model(quantized_model, dataloader):
@@ -129,7 +134,7 @@ test_quantized_model(quantized_model, test_loader)
 
 # Save the quantized model
 quantized_model_path = "quantized_asl_model.pth"
-torch.save(quantized_model.state_dict(), quantized_model_path)
+torch.save(quantized_model, quantized_model_path)
 print(f"Quantized model saved to {quantized_model_path}")
 
 # Deployment Preparation

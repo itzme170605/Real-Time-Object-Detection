@@ -47,7 +47,7 @@ transform = transforms.Compose([
 ])
 
 # Load and preprocess a sample image
-image_path = "preprocessed_test/A/0bccc8ff-d22a-4355-a517-aa552ea756a3.rgb_0000.png"
+image_path = "preprocessed_test\D\\0acd50d1-8f90-4517-8a53-8ed43c7a791e.rgb_0000.png"
 image = Image.open(image_path).convert("RGB")
 input_tensor = transform(image).unsqueeze(0).to(device)
 
