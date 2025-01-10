@@ -1,0 +1,1 @@
+{"input_size": [1, 3, 224, 224], "output_classes": 26, "framework": "PyTorch", "quantized": true}

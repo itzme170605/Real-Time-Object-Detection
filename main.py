@@ -36,7 +36,7 @@ model = models.resnet18(pretrained=True)
 
 # Modify the final layer for ASL classification (26 classes)
 num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, 26)
+model.fc = nn.Linear(num_ftrs, 27)
 
 # Define loss function and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -103,5 +103,56 @@ train_model(model, train_loader, criterion, optimizer, num_epochs)
 evaluate_model(model, test_loader)
 
 # Save the quantized model
-torch.save(quantized_model.state_dict(), "quantized_asl_model.pth")
-print("Quantized model saved.")
+torch.save(quantized_model, "quantized_asl_model.pth")
+print("Quantized model saved.") 
+
+# Test Quantized Model
+def test_quantized_model(quantized_model, dataloader):
+    quantized_model.eval()
+    quantized_model.to(device)
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+        for inputs, labels in dataloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = quantized_model(inputs)
+            _, preds = torch.max(outputs, 1)
+            correct += (preds == labels).sum().item()
+            total += labels.size(0)
+
+    accuracy = correct / total
+    print(f"Quantized Model Test Accuracy: {accuracy:.4f}")
+
+# Evaluate the quantized model
+test_quantized_model(quantized_model, test_loader)
+
+# Save the quantized model
+quantized_model_path = "quantized_asl_model.pth"
+torch.save(quantized_model.state_dict(), quantized_model_path)
+print(f"Quantized model saved to {quantized_model_path}")
+
+# Deployment Preparation
+def prepare_model_for_deployment(model_path, output_dir="deployment_package"):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Save the model state dict
+    deployed_model_path = os.path.join(output_dir, "quantized_asl_model.pth")
+    os.rename(model_path, deployed_model_path)
+
+    # Save metadata
+    metadata = {
+        "input_size": [1, 3, 224, 224],
+        "output_classes": 26,
+        "framework": "PyTorch",
+        "quantized": True
+    }
+    with open(os.path.join(output_dir, "model_metadata.json"), "w") as f:
+        import json
+        json.dump(metadata, f)
+
+    print(f"Model and metadata prepared in {output_dir}")
+
+# Prepare the model for deployment
+prepare_model_for_deployment(quantized_model_path)
