@@ -6,12 +6,13 @@ import torch
 from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.optim as optim
+from torch.quantization import quantize_dynamic
 
-# Define dataset paths (replace with your actual paths)
+
 train_path = "preprocessed_train"
 test_path = "preprocessed_test"
 
-# Define transformations (already applied during preprocessing)
+# Define transformations 
 transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -35,7 +36,7 @@ model = models.resnet18(pretrained=True)
 
 # Modify the final layer for ASL classification (26 classes)
 num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, 27)
+model.fc = nn.Linear(num_ftrs, 26)
 
 # Define loss function and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -89,9 +90,18 @@ def evaluate_model(model, dataloader):
     accuracy = correct / total
     print(f"Test Accuracy: {accuracy:.4f}")
 
+# Quantize the model for on-device performance
+quantized_model = quantize_dynamic(
+    model, {nn.Linear}, dtype=torch.qint8
+)
+
 # Train the model
 num_epochs = 10
 train_model(model, train_loader, criterion, optimizer, num_epochs)
 
 # Evaluate the model
 evaluate_model(model, test_loader)
+
+# Save the quantized model
+torch.save(quantized_model.state_dict(), "quantized_asl_model.pth")
+print("Quantized model saved.")
