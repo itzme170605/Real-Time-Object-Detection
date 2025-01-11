@@ -139,7 +139,7 @@ This creates a `deployment_package` directory containing:
 ---
 
 ## Future Enhancements
-- Extend the system to recognize dynamic gestures (e.g., words or phrases).
+- Extend the system to recognize dynamic gestures (e.g., words or phrases), basically making a video based model.
 - Deploy on embedded devices like Raspberry Pi or Jetson Nano.
 - Implement additional optimizations for latency and accuracy.
 
